@@ -16,12 +16,12 @@ def main(csv_path):
           .option("inferSchema", "true")
           .load(csv_path))
 
-    # --- Insight 1: Contagem por Tipo (Filme vs. TV Show) ---
+    # Insight 1: Contagem por Tipo (Filme vs. TV Show) ---
     print("\n--- Insight 1: Contagem por Tipo de Conteúdo ---")
     count_by_type = df.groupBy("type").count().orderBy(desc("count"))
     count_by_type.show()
 
-    # --- Insight 2: Top 10 Países Produtores ---
+    #Insight 2: Top 10 Países Produtores ---
     print("\n--- Insight 2: Top 10 Países com Mais Conteúdo ---")
     top_countries = (df.filter(col("country").isNotNull())
                      .withColumn("country_single", explode(split(col("country"), ",")))
@@ -32,7 +32,7 @@ def main(csv_path):
                      .limit(10))
     top_countries.show()
 
-    # --- Insight 3: Número de Lançamentos por Ano ---
+    #Insight 3: Número de Lançamentos por Ano ---
     print("\n--- Insight 3: Evolução de Lançamentos por Ano ---")
     releases_per_year = (df.filter(col("release_year").isNotNull())
                          .groupBy("release_year")
@@ -40,7 +40,7 @@ def main(csv_path):
                          .orderBy(desc("release_year")))
     releases_per_year.show(20)
 
-    # --- Insight 4: Top 10 Diretores ---
+    #Insight 4: Top 10 Diretores ---
     print("\n--- Insight 4: Top 10 Diretores com Mais Títulos ---")
     top_directors = (df.filter(col("director").isNotNull())
                      .groupBy("director")
