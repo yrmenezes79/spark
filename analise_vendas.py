@@ -10,7 +10,6 @@ df = (spark.read.format("csv")
 
 receita_df = df.withColumn("Receita", col("Preco") * col("Quantidade"))
 
-# Lógica de agregação corrigida
 receita_por_categoria = (receita_df.groupBy("Categoria")
                                    .agg(sum("Receita").alias("Receita_Total"))
                                    .orderBy(desc("Receita_Total")))
