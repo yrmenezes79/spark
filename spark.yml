@@ -1,0 +1,94 @@
+---
+- name: Instalar e Configurar Apache Spark 4.0 em um Único Nó CentOS
+  hosts: spark_standalone
+  become: yes
+  vars:
+    spark_version: "4.0.0"
+    hadoop_version: "3"
+    spark_user: "spark"
+    spark_group: "spark"
+    spark_install_dir: "/opt/spark"
+
+  tasks:
+    - name: Instalar Java 21 OpenJDK
+      ansible.builtin.yum:
+        name: java-21-openjdk
+        state: present
+
+    - name: Instalar Java 21 OpenJDK Devel
+      ansible.builtin.yum:
+        name: java-21-openjdk-devel
+        state: present
+
+
+    - name: Criar o grupo do Spark
+      ansible.builtin.group:
+        name: "{{ spark_group }}"
+        state: present
+
+    - name: Criar o usuário do Spark
+      ansible.builtin.user:
+        name: "{{ spark_user }}"
+        group: "{{ spark_group }}"
+        home: "{{ spark_install_dir }}"
+        shell: /bin/bash
+
+    - name: Fazer o download do Apache Spark
+      ansible.builtin.get_url:
+        url: "https://archive.apache.org/dist/spark/spark-{{ spark_version }}/spark-{{ spark_version }}-bin-hadoop{{ hadoop_version }}.tgz"
+        dest: "/tmp/spark-{{ spark_version }}-bin-hadoop{{ hadoop_version }}.tgz"
+        mode: '0644'
+
+    - name: Criar o diretório de instalação do Spark
+      ansible.builtin.file:
+        path: "{{ spark_install_dir }}"
+        state: directory
+        owner: "{{ spark_user }}"
+        group: "{{ spark_group }}"
+        mode: '0755'
+
+    - name: Extrair o Apache Spark
+      ansible.builtin.unarchive:
+        src: "/tmp/spark-{{ spark_version }}-bin-hadoop{{ hadoop_version }}.tgz"
+        dest: "{{ spark_install_dir }}"
+        extra_opts: [--strip-components=1]
+        remote_src: yes
+        owner: "{{ spark_user }}"
+        group: "{{ spark_group }}"
+
+    - name: Criar e configurar o arquivo spark-env.sh
+      ansible.builtin.copy:
+        dest: "{{ spark_install_dir }}/conf/spark-env.sh"
+        content: |
+          #!/usr/bin/env bash
+          # Define o host para o mestre do Spark (para setup de nó único)
+          export SPARK_MASTER_HOST='localhost'
+        owner: "{{ spark_user }}"
+        group: "{{ spark_group }}"
+        mode: '0755' # Arquivos de script devem ser executáveis
+      notify:
+        - Reiniciar Serviços do Spark
+
+    - name: Definir SPARK_HOME e PATH para todos os usuários
+      ansible.builtin.copy:
+        dest: /etc/profile.d/spark.sh
+        content: |
+          export SPARK_HOME={{ spark_install_dir }}
+          export PATH=$PATH:$SPARK_HOME/bin
+        mode: '0755'
+
+    - name: Iniciar todos os serviços do Spark (Master e Worker)
+      ansible.builtin.command: "{{ spark_install_dir }}/sbin/start-all.sh"
+      become_user: "{{ spark_user }}"
+      changed_when: false # Comando não é idempotente, evita "changed" em toda execução
+
+  handlers:
+    - name: Reiniciar Serviços do Spark
+      listen: "Reiniciar Serviços do Spark"
+      become_user: "{{ spark_user }}"
+      shell: |
+        echo "Configuração do Spark alterada. Reiniciando serviços..."
+        {{ spark_install_dir }}/sbin/stop-all.sh
+        {{ spark_install_dir }}/sbin/start-all.sh
+      args:
+        chdir: "{{ spark_install_dir }}"
