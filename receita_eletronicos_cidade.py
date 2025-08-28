@@ -25,9 +25,7 @@ receita_eletronicos_df = (df.withColumn("Receita", col("Preco") * col("Quantidad
                             .agg(sum("Receita").alias("Receita_Total_Eletronicos"))
                             .orderBy(desc("Receita_Total_Eletronicos")))
 
-# 4. Exibição do Resultado
 print("\n--- Receita da Categoria 'Eletrônicos' por Cidade ---")
 receita_eletronicos_df.show()
 
-# 5. Finalização da Sessão
 spark.stop()
