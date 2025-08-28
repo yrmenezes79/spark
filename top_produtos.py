@@ -1,14 +1,11 @@
-# top_produtos.py
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, desc, sum
 
-# 1. Inicialização da SparkSession
 spark = SparkSession.builder.appName("Top5ProdutosMaisVendidos").getOrCreate()
 
 print("Iniciando a análise dos produtos mais vendidos...")
 
 # 2. Leitura dos dados do CSV
-# inferSchema=True é crucial para que a coluna 'Quantidade' seja lida como número
 df = (spark.read.format("csv")
       .option("header", "true")
       .option("inferSchema", "true")
