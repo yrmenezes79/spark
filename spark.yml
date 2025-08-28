@@ -1,6 +1,6 @@
 ---
 - name: Instalar e Configurar Apache Spark 4.0 em um Único Nó CentOS
-  hosts: spark_standalone
+  hosts: localhost
   become: yes
   vars:
     spark_version: "4.0.0"
@@ -20,6 +20,15 @@
         name: java-21-openjdk-devel
         state: present
 
+    - name: Python pip
+      ansible.builtin.yum:
+        name: python-pip
+        state: present
+
+    - name: Instalar a ferramenta gdown usando o pip
+      ansible.builtin.pip:
+        name: gdown
+        state: present
 
     - name: Criar o grupo do Spark
       ansible.builtin.group:
@@ -32,12 +41,13 @@
         group: "{{ spark_group }}"
         home: "{{ spark_install_dir }}"
         shell: /bin/bash
+        password: "{{ 'Qwaszx123@' | password_hash('sha512') }}"
 
-    - name: Fazer o download do Apache Spark
-      ansible.builtin.get_url:
-        url: "https://archive.apache.org/dist/spark/spark-{{ spark_version }}/spark-{{ spark_version }}-bin-hadoop{{ hadoop_version }}.tgz"
-        dest: "/tmp/spark-{{ spark_version }}-bin-hadoop{{ hadoop_version }}.tgz"
-        mode: '0644'
+    - name: Executar gdown para baixar o arquivo pelo ID
+      ansible.builtin.command:
+        cmd: gdown 12DExCXlSvXOsnKg-91JhuIQqkyY7Pedd
+        chdir: /tmp/
+      register: gdown_output # Opcional: registra a saida do comando em uma variavel
 
     - name: Criar o diretório de instalação do Spark
       ansible.builtin.file:
