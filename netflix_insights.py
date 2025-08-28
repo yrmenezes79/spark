@@ -1,45 +1,62 @@
+# analise_netflix.py
+import sys
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, desc, split, explode, trim
 
-def main():
-    # Criar sessão Spark
-    spark = SparkSession.builder.appName("NetflixInsights").getOrCreate()
+def main(csv_path):
+    spark = (SparkSession.builder
+             .appName("AnaliseNetflixLocal")
+             .getOrCreate())
 
-    # Caminho do arquivo CSV (ajuste conforme a pasta onde você salvou o dataset)
-    file_path = "/root/netflix_titles_nov_2019.csv"
+    print(f"Iniciando a análise do arquivo: {csv_path}")
 
-    # Ler dataset Netflix
-    df = spark.read.csv(file_path, header=True, inferSchema=True)
+    # Carregar os dados do CSV a partir do caminho fornecido
+    df = (spark.read.format("csv")
+          .option("header", "true")
+          .option("inferSchema", "true")
+          .load(csv_path))
 
-    # Mostrar schema
-    print("### Estrutura do DataFrame ###")
-    df.printSchema()
+    # --- Insight 1: Contagem por Tipo (Filme vs. TV Show) ---
+    print("\n--- Insight 1: Contagem por Tipo de Conteúdo ---")
+    count_by_type = df.groupBy("type").count().orderBy(desc("count"))
+    count_by_type.show()
 
-    # Total de registros
-    print("\n### Total de registros ###")
-    print(df.count())
+    # --- Insight 2: Top 10 Países Produtores ---
+    print("\n--- Insight 2: Top 10 Países com Mais Conteúdo ---")
+    top_countries = (df.filter(col("country").isNotNull())
+                     .withColumn("country_single", explode(split(col("country"), ",")))
+                     .withColumn("country_single", trim(col("country_single")))
+                     .groupBy("country_single")
+                     .count()
+                     .orderBy(desc("count"))
+                     .limit(10))
+    top_countries.show()
 
-    # Quantidade de filmes e séries
-    print("\n### Quantidade de Filmes e Séries ###")
-    df.groupBy("type").count().show()
+    # --- Insight 3: Número de Lançamentos por Ano ---
+    print("\n--- Insight 3: Evolução de Lançamentos por Ano ---")
+    releases_per_year = (df.filter(col("release_year").isNotNull())
+                         .groupBy("release_year")
+                         .count()
+                         .orderBy(desc("release_year")))
+    releases_per_year.show(20)
 
-    # Top 5 países com mais títulos
-    print("\n### Top 5 países com mais títulos ###")
-    df.groupBy("country").count().orderBy("count", ascending=False).show(5)
+    # --- Insight 4: Top 10 Diretores ---
+    print("\n--- Insight 4: Top 10 Diretores com Mais Títulos ---")
+    top_directors = (df.filter(col("director").isNotNull())
+                     .groupBy("director")
+                     .count()
+                     .orderBy(desc("count"))
+                     .limit(10))
+    top_directors.show(truncate=False)
 
-    # Ano com mais lançamentos
-    print("\n### Ano com mais lançamentos ###")
-    df.groupBy("release_year").count().orderBy("count", ascending=False).show(1)
-
-    # Top 5 diretores mais frequentes
-    print("\n### Top 5 diretores mais frequentes ###")
-    df.filter(df["director"].isNotNull()) \
-      .groupBy("director") \
-      .count() \
-      .orderBy("count", ascending=False) \
-      .show(5)
-
-    # Encerrar sessão
+    print("\nAnálise concluída com sucesso!")
+        
     spark.stop()
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2:
+        print("Uso: spark-submit analise_netflix.py <caminho_para_o_arquivo_csv>", file=sys.stderr)
+        sys.exit(-1)
+    
+    csv_file_path = sys.argv[1]
+    main(csv_file_path)
