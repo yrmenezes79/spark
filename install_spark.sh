@@ -33,10 +33,16 @@ verify_installation() {
     fi
 }
 
+installation_spark() {
+    echo -e "\n${YELLOW}Instalando o Spark...${NC}"
+    ansible-playbook spark.yml
+}
+
 main() {
     check_root
     install_ansible
     verify_installation
+    installation_spark
     echo -e "\n${GREEN}Processo de instalação do Ansible concluído!${NC}"
     echo -e "Para começar, edite o arquivo de inventário em /etc/ansible/hosts."
 }
