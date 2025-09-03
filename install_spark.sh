@@ -2,7 +2,7 @@
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
-NC='\033[0m' # Sem Cor
+NC='\033[0m' 
 
 check_root() {
     echo -e "${YELLOW}Verificando privilégios de root...${NC}"
