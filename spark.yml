@@ -15,6 +15,11 @@
         name: java-21-openjdk
         state: present
 
+    - name: Instalar net-tools
+      ansible.builtin.yum:
+        name: net-tools
+        state: present
+        
     - name: Instalar Java 21 OpenJDK Devel
       ansible.builtin.yum:
         name: java-21-openjdk-devel
