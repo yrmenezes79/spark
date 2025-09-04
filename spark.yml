@@ -1,6 +1,7 @@
 ---
 - name: Instalar e Configurar Apache Spark 4.0 em um Único Nó CentOS
   hosts: localhost
+  gather_facts: no
   become: yes
   vars:
     spark_version: "4.0.0"
