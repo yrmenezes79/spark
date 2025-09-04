@@ -38,6 +38,7 @@ installation_spark() {
     ansible-playbook spark.yml
 }
 variaveis_ambiente() {
+    echo -e "\n${YELLOW}Variaveis de ambiente Spark...${NC}"
     export SPARK_HOME=/opt/spark
     export PATH=$PATH:$SPARK_HOME/bin
 }
