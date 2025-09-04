@@ -2,7 +2,6 @@ import csv
 import random
 from datetime import datetime, timedelta
 
-# Definição dos produtos (ID, Categoria, Preço)
 produtos = [
     ("P001", "Eletrônicos", 1200.00),
     ("P002", "Acessórios", 80.00),
