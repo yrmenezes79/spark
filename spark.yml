@@ -93,6 +93,20 @@
           export PATH=$PATH:$SPARK_HOME/bin
         mode: '0755'
 
+    - name: Adicionar SPARK_HOME no .bashrc do root
+      lineinfile:
+        path: /root/.bashrc
+        regexp: '^export SPARK_HOME='
+        line: 'export SPARK_HOME=/opt/spark'
+        state: present
+
+    - name: Adicionar PATH do Spark no .bashrc do root
+      lineinfile:
+        path: /root/.bashrc
+        regexp: '^export PATH=.*SPARK_HOME'
+        line: 'export PATH=$PATH:$SPARK_HOME/bin'
+        state: present
+        
     - name: Iniciar todos os serviços do Spark (Master e Worker)
       ansible.builtin.command: "{{ spark_install_dir }}/sbin/start-all.sh"
       become_user: "{{ spark_user }}"
