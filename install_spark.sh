@@ -37,17 +37,11 @@ installation_spark() {
     echo -e "\n${YELLOW}Instalando o Spark...${NC}"
     ansible-playbook spark.yml
 }
-variaveis_ambiente() {
-    echo -e "\n${YELLOW}Variaveis de ambiente Spark...${NC}"
-    export SPARK_HOME=/opt/spark
-    export PATH=$PATH:$SPARK_HOME/bin
-}
 main() {
     check_root
     install_ansible
     verify_installation
     installation_spark
-    variaveis_ambiente
     echo -e "\n${GREEN}Processo de instalação do Ansible concluído!${NC}"
     echo -e "Para começar, edite o arquivo de inventário em /etc/ansible/hosts."
 }
