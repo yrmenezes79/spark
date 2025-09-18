@@ -8,7 +8,7 @@ spark = SparkSession.builder \
 
 # 2. Ler o arquivo CSV do HDFS
 # Troque o caminho pelo local onde você colocou o arquivo no HDFS
-caminho = "hdfs:///user/ec2-user/supermercado.csv"
+caminho = "hdfs:///user/ec2-user/supermercado/supermercado.csv"
 
 df = (spark.read.format("csv")
       .option("header", "true")   # primeira linha é cabeçalho
