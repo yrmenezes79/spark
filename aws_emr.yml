@@ -1,0 +1,56 @@
+---
+- name: Criar Cluster EMR com Ansible
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    cluster_name: "NOTE"
+    release_label: "emr-6.15.0"
+    applications:
+      - Name: Hadoop
+      - Name: Spark
+    ec2_key_name: "TESTE2"                      # chave PEM já criada
+    ec2_instance_profile: "EMR_EC2_DefaultRole" # perfil da instância
+    service_role: "EMR_DefaultRole"             # role de serviço
+    instance_type: "m5.xlarge"
+    instance_count: 3
+    region: "us-east-1"
+
+  tasks:
+    - name: Criar cluster EMR
+      amazon.aws.emr_cluster:
+        name: "{{ cluster_name }}"
+        release_label: "{{ release_label }}"
+        applications: "{{ applications }}"
+        ec2_attributes:
+          KeyName: "{{ ec2_key_name }}"
+          InstanceProfile: "{{ ec2_instance_profile }}"
+        service_role: "{{ service_role }}"
+        instances:
+          instance_groups:
+            - name: "Master nodes"
+              instance_role: MASTER
+              instance_type: "{{ instance_type }}"
+              instance_count: 1
+            - name: "Core nodes"
+              instance_role: CORE
+              instance_type: "{{ instance_type }}"
+              instance_count: "{{ instance_count | int - 1 }}"
+        region: "{{ region }}"
+        state: present
+      register: emr_cluster
+
+    - name: Mostrar ID do cluster criado
+      debug:
+        msg: "Cluster EMR criado com ID: {{ emr_cluster.id }}"
+
+    - name: Obter informações do cluster
+      amazon.aws.emr_cluster_info:
+        cluster_id: "{{ emr_cluster.id }}"
+        region: "{{ region }}"
+      register: emr_info
+
+    - name: Exibir DNS público do Master
+      debug:
+        msg: "Master DNS: {{ emr_info.clusters[0].master_public_dns_name }}"
