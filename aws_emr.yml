@@ -7,7 +7,7 @@
   vars:
     cluster_name: "NOTE"
     release_label: "emr-6.15.0"
-    ec2_key_name: "aula12"
+    ec2_key_name: "{{ ec2_key_name }}"
     ec2_instance_profile: "EMR_EC2_DefaultRole"
     service_role: "EMR_DefaultRole"
     instance_type: "m5.xlarge"
