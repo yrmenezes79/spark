@@ -40,7 +40,7 @@ verify_installation() {
 
 installation_emr() {
     echo -e "\n${YELLOW}Instalando o Spark...${NC}"
-    ansible-playbook emr.yml
+    ansible-playbook aws_emr.yml -e "ec2_key_name=$KEY_NAME"
 }
 main() {
     check_root
