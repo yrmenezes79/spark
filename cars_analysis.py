@@ -16,8 +16,8 @@ df.show()
 print("=== Média de preço por fabricante ===")
 df.groupBy("Manufacturer").avg("Price").show()
 
-# Carro com maior mileage
-print("=== Carro com maior Mileage ===")
+# Carro com maior Milhas
+print("=== Carro com maior Milhas ===")
 df.orderBy(desc("Mileage")).show(1)
 
 # Contagem por tipo de combustível
