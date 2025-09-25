@@ -18,9 +18,7 @@ install_ansible() {
     dnf install -y ansible-core python-pip
     CDRET1=$?
     pip install boto3 botocore
-    CDRET2=$?
     ansible-galaxy collection install amazon.aws community.aws
-    CDRET3=$?
     if [ $CDRET1 -ne 0 || $CDRET2 -ne 0 || $CDRET3 -ne 0 ]; then
         echo -e "${RED}Falha na instalacao. Verifique os logs do DNF.${NC}"
         exit 1
