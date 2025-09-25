@@ -29,7 +29,7 @@ print("=== Carros com Engine size > 2.0 ===")
 df.filter(df["Engine size"] > 2.0).show()
 
 # Salvar resultado no S3 (exemplo: carros com preco > 20000)
-output_path = "s3://capricornio16011979yuri/cars_high_price/"
+output_path = "s3://XXXXXXXXXXXXX/cars_high_price/"
 df.filter(df["Price"] > 20000).write.mode("overwrite").csv(output_path)
 
 print(f"Resultados salvos em {output_path}")
