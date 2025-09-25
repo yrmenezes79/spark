@@ -43,7 +43,7 @@
           --region {{ region }}
       register: cluster_state
       retries: 30           # tenta até 30 vezes
-      delay: 60             # espera 60 segundos entre as tentativas
+      delay: 10             # espera 10 segundos entre as tentativas
       until: cluster_state.stdout in ["WAITING", "RUNNING"]
 
     - name: Obter DNS público do Master
